@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+import plotly.graph_objects as go
 from google import genai
 
 # --- 1. OLDAL BEÁLLÍTÁSA ÉS FEKETE-LILA MÁTRIX STÍLUS ---
@@ -34,11 +35,6 @@ st.markdown("""
         background-color: #10061e;
         border-right: 1px solid #3c096c;
     }
-    .stTextInput>div>div>input {
-        background-color: #190a28;
-        color: #e0aaff;
-        border: 1px solid #5a189a;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -62,87 +58,126 @@ def save_skills(data):
 
 skills_data = load_skills()
 
-# --- 3. FEJLÉC & OLDALSÁV ---
-st.title("⚡ NEURO-MATRIX // KOGNITÍV CORE")
-st.caption("Alaprendszer Architektúra v0.3 // Active AI Core")
+# --- 3. NEURO-TÉRKÉP ALGORITMUS ---
+def calculate_brain_stats(data):
+    # Agyterületek pontszámainak kiszámítása
+    pfc = 0       # Prefrontális kortex (Logika, Sakk, Python, PhD)
+    temporal = 0  # Temporális lebeny (Zene, Akusztika)
+    cerebellum = 0# Kisagy & Motoros (Finommotorika, Design, Gitár/Hegedű)
+    parietal = 0  # Parietális (Térbeli, Asztrofizika, Kémia)
 
+    for kat, skill_lista in data.items():
+        for s in skill_lista:
+            val = (s["lvl"] * 20) + s["xp"]
+            name = s["nev"].lower()
+            
+            if "sakk" in name or "python" in name or "phd" in name or "hipotézis" in name:
+                pfc += val
+            if "hegedű" in name or "akusztika" in name or "hang" in name:
+                temporal += val
+            if "design" in name or "ruha" in name or "motor" in name:
+                cerebellum += val
+            if "astro" in name or "galaxis" in name or "kvantum" in name or "kémia" in name:
+                parietal += val
+
+    return {
+        "Prefrontális Kortex (Logika/Stratégia)": min(pfc, 100),
+        "Temporális Lebeny (Auditív/Akusztika)": min(temporal, 100),
+        "Kisagy & Motoros Kortex (Koordináció)": min(cerebellum, 100),
+        "Parietális Lebeny (Térbeli/Fizika)": min(parietal, 100)
+    }
+
+# --- 4. FEJLÉC & SIDEBAR ---
+st.title("⚡ NEURO-MATRIX // KOGNITÍV CORE")
+st.caption("v0.4 // Advanced Cortical Mapping System")
 st.divider()
 
 with st.sidebar:
     st.header("🔑 AI MAG BEÁLLÍTÁS")
-    api_key = st.text_input("Gemini API Kulcs:", type="password", placeholder="Itt add meg az API kulcsot...")
+    api_key = st.text_input("Gemini API Kulcs:", type="password")
     
     st.divider()
     st.header("🔮 TUDATI STATISZTIKÁK")
-    st.write("**Felhasználó:** ARCHITECT")
-    st.divider()
-    
-    st.subheader("Aktív Készségfák")
     for kategoria, skill_lista in skills_data.items():
         st.caption(f"--- {kategoria} ---")
         for skill in skill_lista:
             progress_val = min(skill["xp"] / 100.0, 1.0)
             st.progress(progress_val, text=f"{skill['nev']} (Lvl {skill['lvl']})")
 
-# --- 4. FŐ INTERFÉSZ ---
-col_left, col_right = st.columns([1, 2])
+# --- 5. FŐ LAPSZERKEZET ---
+tab_chat, tab_brain = st.tabs(["💬 AI MENTOR", "🧠 NEURO-TOPOGRÁFIA"])
 
-with col_left:
-    st.subheader("🎯 Csomópont Választó")
+with tab_chat:
+    col_left, col_right = st.columns([1, 2])
     
-    kategoria_lista = list(skills_data.keys())
-    kivalasztott_kat = st.selectbox("Válassz Kategóriát:", kategoria_lista)
-    
-    elrheto_skillek = [s["nev"] for s in skills_data[kivalasztott_kat]]
-    kivalasztott_skill = st.selectbox("Válassz Aktív Csomópontot:", elrheto_skillek)
-    
-    st.divider()
-    
-    st.subheader("➕ Új Csomópont Nyitása")
-    uj_kat = st.selectbox("Melyik kategóriába kerüljön?", kategoria_lista, key="new_kat")
-    uj_skill_nev = st.text_input("Új skill / csomópont neve:", placeholder="Pl. ⚡ Kvantum-Elektrodinamika")
-    
-    if st.button("Csomópont Injektálása a Mátrixba"):
-        if uj_skill_nev:
-            uj_id = "node_" + str(len(skills_data[uj_kat]) + 1)
-            uj_elem = {"id": uj_id, "nev": uj_skill_nev, "lvl": 1, "xp": 0}
-            
-            skills_data[uj_kat].append(uj_elem)
-            save_skills(skills_data)
-            st.success(f"Csomópont hozzáadva: {uj_skill_nev}")
-            st.rerun()
-        else:
-            st.warning("Adj meg egy nevet az új skillnek!")
+    with col_left:
+        st.subheader("🎯 Csomópont Választó")
+        kategoria_lista = list(skills_data.keys())
+        kivalasztott_kat = st.selectbox("Válassz Kategóriát:", kategoria_lista)
+        elrheto_skillek = [s["nev"] for s in skills_data[kivalasztott_kat]]
+        kivalasztott_skill = st.selectbox("Válassz Aktív Csomópontot:", elrheto_skillek)
+        
+        st.divider()
+        st.subheader("➕ Új Csomópont Nyitása")
+        uj_kat = st.selectbox("Melyik kategóriába kerüljön?", kategoria_lista, key="new_kat")
+        uj_skill_nev = st.text_input("Új skill neve:", placeholder="Pl. Kvantum-Mérés")
+        
+        if st.button("Csomópont Injektálása"):
+            if uj_skill_nev:
+                uj_id = "node_" + str(len(skills_data[uj_kat]) + 1)
+                skills_data[uj_kat].append({"id": uj_id, "nev": uj_skill_nev, "lvl": 1, "xp": 0})
+                save_skills(skills_data)
+                st.success("Csomópont mentve!")
+                st.rerun()
 
-with col_right:
-    st.subheader(f"💬 AI Mentor // {kivalasztott_skill}")
-    
-    user_input = st.text_input("Üzenet a Mentornak:", key="input", placeholder="Pl. Magyarázd el a fizikai hátteret...")
-    
-    if st.button("Üzenet Küldése"):
-        if not api_key:
-            st.error("Kérlek, add meg a Gemini API kulcsodat a bal oldalsávban!")
-        elif not user_input:
-            st.warning("Írj be egy kérdést!")
-        else:
-            st.markdown(f"**Te:** {user_input}")
-            
-            try:
-                # Gemini API hívása
+    with col_right:
+        st.subheader(f"💬 Mentor // {kivalasztott_skill}")
+        user_input = st.text_input("Üzenet a Mentornak:", key="input")
+        
+        if st.button("Üzenet Küldése"):
+            if not api_key:
+                st.error("Add meg a Gemini API kulcsodat az oldalsávban!")
+            elif user_input:
                 client = genai.Client(api_key=api_key)
-                
-                system_instruction = f"""
-                Egy Mátrix-stílusú, szigorú és magasan kvalifikált tudományos AI Mentor vagy.
-                A jelenlegi aktív csomópont, amiben a felhasználóval dolgoztok: {kivalasztott_skill}.
-                Válaszolj mély tudományos alapossággal, precíz fizikai/matematikai/logikai háttérrel, cyber/mátrix hangvételben.
-                """
-                
+                prompt = f"Matrix AI Mentor vagy. Aktív csomópont: {kivalasztott_skill}. Kérdés: {user_input}"
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
-                    contents=f"{system_instruction}\n\nFelhasználó kérdése: {user_input}"
+                    contents=prompt
                 )
-                
                 st.markdown(f"**AI Professzor:**\n{response.text}")
-                
-            except Exception as e:
-                st.error(f"Hiba történt az API hívás során: {e}")
+
+with tab_brain:
+    st.subheader("📊 Agyterületi Fejlettségi Profil (Cortical Radar)")
+    
+    brain_stats = calculate_brain_stats(skills_data)
+    
+    # Plotly Pókháló Diagram (Radar Chart)
+    categories = list(brain_stats.keys())
+    values = list(brain_stats.values())
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        fillcolor='rgba(123, 44, 191, 0.4)',
+        line=dict(color='#c77dff', width=2),
+        name='Kognitív Profil'
+    ))
+    
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], color="#e0aaff"),
+            angularaxis=dict(color="#e0aaff")
+        ),
+        paper_bgcolor="#0a0512",
+        plot_bgcolor="#0a0512",
+        font=dict(color="#e0aaff", family="Courier New"),
+        showlegend=False
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("""
+    > **Neuro-Metrika Megjegyzés:** Amikor új skilleket nyitsz meg vagy XP-t szerzel a Mátrixban, az agyterületi hálózat automatikusan újraszámolja a szinaptikus kapacitásodat.
+    """)
