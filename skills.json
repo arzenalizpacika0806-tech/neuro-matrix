@@ -1,0 +1,22 @@
+{
+  "Stratégia & Logika": [
+    {"id": "sakk_01", "nev": "♟️ Sakk Megnyitások & Játékelmélet", "lvl": 2, "xp": 35},
+    {"id": "sakk_02", "nev": "🧩 Kombinatorika & Taktikai Minták", "lvl": 1, "xp": 15}
+  ],
+  "Akusztika & Művészet": [
+    {"id": "hegedu_01", "nev": "🎻 Hegedű & Akusztika", "lvl": 4, "xp": 60},
+    {"id": "design_01", "nev": "🎨 Digitális Ruhatervezés & Koncepció", "lvl": 2, "xp": 25}
+  ],
+  "Tudomány & Archívum": [
+    {"id": "gateway_01", "nev": "⚛️ Gateway Process & Kogníció", "lvl": 1, "xp": 20},
+    {"id": "astro_01", "nev": "🌌 Asztrofizika & Galaxis Morfológia", "lvl": 3, "xp": 50},
+    {"id": "quantum_01", "nev": "⚛️ Kvantummechanika & Részecskefizika", "lvl": 2, "xp": 40},
+    {"id": "kemia_01", "nev": "🧪 Szerves Kémia & Reakciómechanizmusok", "lvl": 3, "xp": 65},
+    {"id": "python_01", "nev": "🐍 Python Kódarchitektúra & Rendszerfejlesztés", "lvl": 3, "xp": 75}
+  ],
+  "🎓 Akademikus & PhD Kutatás": [
+    {"id": "phd_01", "nev": "📄 Tudományos Paper Szintézis & Kritika", "lvl": 1, "xp": 10},
+    {"id": "phd_02", "nev": "🔬 Hipotézis Alkotás & Módszertan", "lvl": 1, "xp": 5},
+    {"id": "phd_03", "nev": "📊 Adatanalízis & Kutatási Modellezés", "lvl": 1, "xp": 0}
+  ]
+}
